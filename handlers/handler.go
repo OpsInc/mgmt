@@ -2,8 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"forms/api/forms"
-	// "forms/api/forms"
+	"forms/api/mgmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -91,7 +90,7 @@ func Handler() *gin.Engine {
 		log.Fatal(err)
 	}
 
-  forms.Routes(r) // Add gin Engine to api/forms.go
+  mgmt.Routes(r) // Add gin Engine to api/forms.go
 
 	return r
 }

@@ -1,4 +1,4 @@
-package forms
+package mgmt
 
 import (
 	"net/http"
@@ -14,24 +14,30 @@ func formToJSON() string {
 
 func testfunc(c *gin.Context) {
 
-  // contentType := c.Header.Get("Content-Type")
-  contentType := c.Request.Header
+  // header := c.Header.Get("Content-Type")
+  header := c.Request.Header
    
-  c.String(http.StatusOK, contentType.Get("Content-Type"))
+  c.String(http.StatusOK, header.Get("Content-Type"))
   // Will show Content-Type: application/x-www-form-urlencoded
+  // if Content-Type = form type ---> formToJSON func
 }
 
 func testfunc2(c *gin.Context) {
   name := c.PostForm("fname")
+
+  // write to DB
+  //
+
+  // Response to client
   c.JSON(http.StatusOK, gin.H{
     "jsonName": name,
   })
 }
 
 func Routes(route *gin.Engine){
-  forms := route.Group("/forms")
+  mgmt := route.Group("/mgmt")
   {
-    forms.POST("/", testfunc) //Default same has /forms
-    forms.POST("/test", testfunc2) // same as /forms/test
+    mgmt.POST("/orders", testfunc) // Default same as /forms
+    mgmt.POST("/buy", testfunc2) // same as /forms/test
   }
 }
