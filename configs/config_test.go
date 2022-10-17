@@ -1,7 +1,7 @@
 package configs_test
 
 import (
-	"forms/configs"
+	"mgmt/configs"
 	"testing"
 )
 

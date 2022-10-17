@@ -1,8 +1,8 @@
 package main
 
 import (
-	"forms/configs"
-	"forms/handlers"
+	"mgmt/configs"
+	"mgmt/handlers"
 	"log"
 )
 

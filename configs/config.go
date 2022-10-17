@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"forms/env"
+	"mgmt/env"
 	"log"
 )
 

@@ -1,4 +1,4 @@
-module forms
+module mgmt
 
 go 1.18
 

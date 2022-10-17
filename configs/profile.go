@@ -2,7 +2,7 @@ package configs
 
 import (
 	"fmt"
-	"forms/env"
+	"mgmt/env"
 	"os"
 	"path"
 	"runtime"

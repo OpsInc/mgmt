@@ -1,7 +1,7 @@
 package handlers_test
 
 import (
-	"forms/handlers"
+	"mgmt/handlers"
 	"io/ioutil"
 	"log"
 	"net/http"

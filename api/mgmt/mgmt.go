@@ -8,7 +8,7 @@ import (
 
 func formToJSON() string {
   return string("test")
-  // Need to add a function to fetch forms data and transforms to JSON
+  // Need to add a function to fetch mgmt data and transmgmt to JSON
   // https://github.com/gin-gonic/gin/issues/364 ---> Example with from data
 }
 
@@ -37,7 +37,7 @@ func testfunc2(c *gin.Context) {
 func Routes(route *gin.Engine){
   mgmt := route.Group("/mgmt")
   {
-    mgmt.POST("/orders", testfunc) // Default same as /forms
-    mgmt.POST("/buy", testfunc2) // same as /forms/test
+    mgmt.POST("/orders", testfunc) // Default same as /mgmt
+    mgmt.POST("/buy", testfunc2) // same as /mgmt/test
   }
 }
