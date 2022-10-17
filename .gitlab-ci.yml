@@ -1,0 +1,77 @@
+---
+# yamllint disable rule:line-length
+
+stages:
+  - code-analysis
+  - code-gating
+  - init
+  - build
+
+include:
+  - project: '$CI_PROJECT_ROOT_NAMESPACE/pipeline-templates'
+    ref: main
+    file:
+      - 'go/lint.yml'
+      - 'go/unitTest.yml'
+      - 'docker/ecr.yml'
+      - 'git/actions.yml'
+
+# Job comming from include build-image-ECR.yml
+# Overriding stage config
+go_lint_golangci:
+  stage: code-analysis
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
+      when: never
+    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
+
+go_unitTest_runTests:
+  stage: code-analysis
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
+      when: never
+    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
+
+go_unitTest_codeCoverage:
+  stage: code-gating
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requestss
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
+      when: never
+    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
+
+go_unitTest_gating:
+  stage: code-gating
+  variables:
+    ACCEPTABLE_COVERAGE: 80
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
+      when: never
+    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
+
+docker_ecr_repoCreate:
+  stage: init
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+
+git_actions_gating:
+  stage: init
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+
+docker_ecr_buildImage:
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+
+git_actions_tag:
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
