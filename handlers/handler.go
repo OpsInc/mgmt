@@ -1,34 +1,33 @@
 package handlers
 
 import (
-	"mgmt/api/mgmt"
-	"log"
+	"mgmt/database"
+	"mgmt/views"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-var err error
+func Testfunc2(c *gin.Context) {
+	// var structData FormData
+	name := c.PostForm("fname")
+	last := c.PostForm("lname")
 
-func Handler() *gin.Engine {
-	// Creates a router without any middleware by default
-	r := gin.New()
+	formOutput := new(views.FormOutput)
+	formOutput.FirstName = name
+	formOutput.LastName = last
 
-	// Global middleware
-	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.
-	// By default gin.DefaultWriter = os.Stdout
-	if gin.Mode() == "debug" {
-		r.Use(gin.Logger())
-	}
+	// json, _ := json.Marshal(formOutput)
 
-	// Recovery middleware recovers from any panics and writes a 500 if there was one.
-	r.Use(gin.Recovery())
+	// jsonForm := string(json)
 
-	err = r.SetTrustedProxies(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	cfg, db := database.AWSConnection()
 
-  mgmt.Routes(r) // Add gin Engine to api/mgmt.go
+	database.ListTables(cfg, db)
+	database.PutItems(cfg, db, formOutput)
 
-	return r
+	// Response to client
+	c.JSON(http.StatusOK, gin.H{
+		"body": "testing dynamo",
+	})
 }
