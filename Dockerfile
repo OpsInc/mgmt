@@ -6,19 +6,11 @@ WORKDIR /build
 
 COPY . .
 
-RUN go build -o /build/go-web .
+RUN go build -o /mgmt .
 
-# Main image
-FROM debian:11-slim
+# Main Image
+FROM public.ecr.aws/lambda/go:1
 
-RUN mkdir /app
+COPY --from=builder mgmt ${LAMBDA_TASK_ROOT}
 
-WORKDIR /app
-
-COPY --from=builder /build/go-web .
-
-ENV GIN_MODE=release
-
-EXPOSE 8080
-
-CMD ["/app/go-web"]
+CMD [ "mgmt.main" ]

@@ -5,12 +5,13 @@ import (
 	"mgmt/configs"
 	"mgmt/handlers"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gin-gonic/gin"
 )
 
 var err error
 
-func main() {
+func HandleRequest() {
 	err = configs.GetActiveProfile()
 	if err != nil {
 		log.Fatal(err)
@@ -46,4 +47,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+	lambda.Start(HandleRequest)
 }
