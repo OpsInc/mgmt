@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"log"
+	"mgmt/env"
 	"mgmt/views"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,8 +13,10 @@ import (
 )
 
 func AWSConnection() *dynamodb.Client {
+	awsProfile, _ := env.Get("AWS_PROFILE")
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithSharedConfigProfile("jad-dev"))
+		config.WithSharedConfigProfile(awsProfile))
 	if err != nil {
 		log.Fatal("Unable to load AWS profile with error:", err)
 	}
