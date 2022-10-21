@@ -21,10 +21,10 @@ func Testfunc2(c *gin.Context) {
 
 	// jsonForm := string(json)
 
-	cfg, db := database.AWSConnection()
+	db := database.AWSConnection()
 
-	database.ListTables(cfg, db)
-	database.PutItems(cfg, db, formOutput)
+	database.ListTables(db)
+	database.PutItems(db, formOutput)
 
 	// Response to client
 	c.JSON(http.StatusOK, gin.H{

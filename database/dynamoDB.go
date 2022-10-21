@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-func AWSConnection() (aws.Config, *dynamodb.Client) {
+func AWSConnection() *dynamodb.Client {
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithSharedConfigProfile("jad-dev"))
 	if err != nil {
@@ -20,10 +20,10 @@ func AWSConnection() (aws.Config, *dynamodb.Client) {
 
 	db := dynamodb.NewFromConfig(cfg)
 
-	return cfg, db
+	return db
 }
 
-func ListTables(cfg aws.Config, db *dynamodb.Client) {
+func ListTables(db *dynamodb.Client) {
 	// input := &dynamodb.ListTablesInput{}   // Can be replaced by nil since we do not provide any config other than an empty struct
 
 	tables, err := db.ListTables(context.TODO(), nil)
@@ -37,13 +37,7 @@ func ListTables(cfg aws.Config, db *dynamodb.Client) {
 		log.Println("Table name", tables)
 	}
 }
-
-type FormOutput struct {
-	FirstName string
-	LastName  string
-}
-
-func PutItems(cfg aws.Config, db *dynamodb.Client, f *views.FormOutput) {
+func PutItems(db *dynamodb.Client, f *views.FormOutput) {
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("mgmt"),
 		Item: map[string]types.AttributeValue{
