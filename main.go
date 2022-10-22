@@ -1,22 +1,25 @@
 package main
 
 import (
+	"context"
 	"log"
-	"mgmt/configs"
 	"mgmt/handlers"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
 )
 
 var err error
 
-func HandleRequest() {
-	err = configs.GetActiveProfile()
-	if err != nil {
-		log.Fatal(err)
-	}
+var ginLambda *ginadapter.GinLambda
 
+func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	return ginLambda.ProxyWithContext(ctx, request)
+}
+
+func main() {
 	// Creates a router without any middleware by default
 	r := gin.New()
 
@@ -37,18 +40,20 @@ func HandleRequest() {
 
 	// mgmt.Routes(r) // Add gin Engine to api/mgmt.go
 
-	mgmt := r.Group("/mgmt")
-	{
-		mgmt.POST("/orders", handlers.Testfunc2) // Default same as /forms
-		mgmt.POST("/buy", handlers.Testfunc2)    // same as /forms/test
-	}
+	// mgmt := r.Group("/mgmt")
+	// {
+	// 	mgmt.POST("/orders", handlers.Testfunc2) // Default same as /forms
+	// 	mgmt.POST("/buy", handlers.Testfunc2)    // same as /forms/test
+	// }
 
-	err = r.Run(":8080")
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+	r.POST("/", handlers.Testfunc2) // same as /forms/test
+	r.GET("/", handlers.Testfunc2) // same as /forms/test
 
-func main() {
-	lambda.Start(HandleRequest)
+	// err = r.Run(":8080")
+	// if err != nil {
+	// log.Fatal("Fucntion Run() has failed with error:", err)
+	// }
+
+	ginLambda = ginadapter.New(r)
+	lambda.Start(Handler)
 }
