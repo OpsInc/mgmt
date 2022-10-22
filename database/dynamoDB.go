@@ -3,8 +3,8 @@ package database
 import (
 	"context"
 	"log"
-	"mgmt/env"
 	"mgmt/views"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -13,17 +13,27 @@ import (
 )
 
 func AWSConnection() *dynamodb.Client {
-	awsProfile, _ := env.Get("AWS_PROFILE")
+	var (
+		cfg aws.Config
+		err error
+	)
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithSharedConfigProfile(awsProfile))
-	if err != nil {
-		log.Fatal("Unable to load AWS profile with error:", err)
+	awsProfile := os.Getenv("AWS_PROFILE")
+
+	if awsProfile == "" {
+		cfg, err = config.LoadDefaultConfig(context.TODO())
+		if err != nil {
+			log.Fatal("Unable to load AWS profile from LAMBDA:", err)
+		}
+	} else {
+		cfg, err = config.LoadDefaultConfig(context.TODO(),
+			config.WithSharedConfigProfile(awsProfile))
+		if err != nil {
+			log.Fatal("Unable to load AWS profile with error:", err)
+		}
 	}
 
-	db := dynamodb.NewFromConfig(cfg)
-
-	return db
+	return dynamodb.NewFromConfig(cfg)
 }
 
 func ListTables(db *dynamodb.Client) {
@@ -40,6 +50,7 @@ func ListTables(db *dynamodb.Client) {
 		log.Println("Table name", tables)
 	}
 }
+
 func PutItems(db *dynamodb.Client, f *views.FormOutput) {
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("mgmt"),

@@ -47,7 +47,9 @@ func main() {
 	// }
 
 	r.POST("/", handlers.Testfunc2) // same as /forms/test
-	r.GET("/", handlers.Testfunc2) // same as /forms/test
+	r.POST("/mgmt", handlers.Testfunc2) // same as /forms/test
+	r.POST("/orders", handlers.Testfunc2) // same as /forms/test
+	r.POST("/mgmt/orders", handlers.Testfunc2) // same as /forms/test
 
 	// err = r.Run(":8080")
 	// if err != nil {
