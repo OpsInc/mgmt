@@ -28,6 +28,7 @@ func Testfunc2(c *gin.Context) {
 
 	// Response to client
 	c.JSON(http.StatusOK, gin.H{
-		"body": "testing dynamo",
+		"fname": formOutput.FirstName,
+		"lname": formOutput.LastName,
 	})
 }

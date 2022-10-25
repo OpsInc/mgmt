@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"mgmt/handlers"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -15,7 +16,7 @@ var err error
 
 var ginLambda *ginadapter.GinLambda
 
-func Handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func LambdaHandler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	return ginLambda.ProxyWithContext(ctx, request)
 }
 
@@ -38,24 +39,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// mgmt.Routes(r) // Add gin Engine to api/mgmt.go
+	mgmt := r.Group("/mgmt")
+	{
+		mgmt.POST("/orders", handlers.Testfunc2) // same as /mgmt/orders
+		mgmt.POST("/buy", handlers.Testfunc2)    // same as /mgmt/buy
+	}
 
-	// mgmt := r.Group("/mgmt")
-	// {
-	// 	mgmt.POST("/orders", handlers.Testfunc2) // Default same as /forms
-	// 	mgmt.POST("/buy", handlers.Testfunc2)    // same as /forms/test
-	// }
-
-	r.POST("/", handlers.Testfunc2) // same as /forms/test
-	r.POST("/mgmt", handlers.Testfunc2) // same as /forms/test
-	r.POST("/orders", handlers.Testfunc2) // same as /forms/test
-	r.POST("/mgmt/orders", handlers.Testfunc2) // same as /forms/test
-
-	// err = r.Run(":8080")
-	// if err != nil {
-	// log.Fatal("Fucntion Run() has failed with error:", err)
-	// }
-
-	ginLambda = ginadapter.New(r)
-	lambda.Start(Handler)
+	if os.Getenv("GO_ENV") == "local" {
+		err = r.Run(":8080")
+		if err != nil {
+			log.Fatal("Function Run() has failed with error:", err)
+		}
+	} else {
+		ginLambda = ginadapter.New(r)
+		lambda.Start(LambdaHandler)
+	}
 }
