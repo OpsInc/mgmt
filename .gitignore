@@ -3,3 +3,7 @@
 
 coverage.*
 report.xml
+
+main
+*main.zip
+bin/

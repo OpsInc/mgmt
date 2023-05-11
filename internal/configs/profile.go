@@ -2,7 +2,7 @@ package configs
 
 import (
 	"fmt"
-	"mgmt/env"
+	"mgmt/internal/env"
 	"os"
 	"path"
 	"runtime"
@@ -20,20 +20,24 @@ var (
 	errGoDotEnv      = fmt.Errorf("function GetActiveProfile() failed while calling function godotenv(), with error: %w", err)
 )
 
-func GetActiveProfile() error {
+func projectRootDir() (string, error) {
 	_, goFileExecuted, _, ok := runtime.Caller(0)
 	if !ok {
-		return errRuntimeCaller
+		return "", errRuntimeCaller
 	}
 
 	projectRootDir := path.Join(path.Dir(goFileExecuted), "..")
 
-	err := os.Chdir(projectRootDir)
+	err = os.Chdir(projectRootDir)
 	if err != nil {
-		return errOsChdir
+		return "", errOsChdir
 	}
 
-	activeProfile, err := env.Get("GO_ENV")
+	return projectRootDir, nil
+}
+
+func GetActiveProfile() error {
+	activeProfile, err := env.GetDefault("GO_ENV", "release")
 	if err != nil {
 		return errGetEnv
 	}
@@ -42,7 +46,9 @@ func GetActiveProfile() error {
 
 	switch activeProfile {
 	case "local":
-		err := godotenv.Overload(projectRootDir + "/.env-local")
+		projectRootDir, _ := projectRootDir()
+
+		err := godotenv.Overload(projectRootDir + "/../.env-local")
 		if err != nil {
 			return errGoDotEnv
 		}
@@ -50,7 +56,9 @@ func GetActiveProfile() error {
 		return nil
 
 	case "pipeline":
-		err := godotenv.Overload(projectRootDir + "/.env-pipeline")
+		projectRootDir, _ := projectRootDir()
+		
+        err := godotenv.Overload(projectRootDir + "/../.env-pipeline")
 		if err != nil {
 			return errGoDotEnv
 		}
@@ -58,6 +66,6 @@ func GetActiveProfile() error {
 		return nil
 
 	default:
-		return errVoidEnvValue
+		return nil
 	}
 }

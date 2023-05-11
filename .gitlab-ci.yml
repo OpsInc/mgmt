@@ -2,76 +2,111 @@
 # yamllint disable rule:line-length
 
 stages:
+  - init
   - code-analysis
   - code-gating
-  - init
   - build
+  - artifact
+  - deploy
+
+variables:
+  PROJECT: "mgmt"
 
 include:
-  - project: '$CI_PROJECT_ROOT_NAMESPACE/pipeline-templates'
+  - project: 'nodeai/pipeline-templates'
     ref: main
     file:
-      - 'go/lint.yml'
-      - 'go/unitTest.yml'
-      - 'docker/ecr.yml'
+      - 'global/rules.yml'
+      # - 'go/lint.yml'
+      # - 'go/unitTest.yml'
+      - 'go/build.yml'
       - 'git/actions.yml'
+      - 'aws/lambda.yml'
+      - 'aws/s3.yml'
 
-# Job comming from include build-image-ECR.yml
-# Overriding stage config
-go_lint_golangci:
-  stage: code-analysis
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
-      when: never
-    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
+########################
+### Pre Merge
+########################
+# go_lint_golangci:
+#   stage: code-analysis
+#   rules:
+#     - !reference [.skip_ci, rules]
+#     - !reference [.pre_merge, rules]
 
-go_unitTest_runTests:
-  stage: code-analysis
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
-      when: never
-    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
-
-go_unitTest_codeCoverage:
-  stage: code-gating
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requestss
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
-      when: never
-    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
-
-go_unitTest_gating:
-  stage: code-gating
-  variables:
-    ACCEPTABLE_COVERAGE: 80
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'  # only on merge requests
-    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'  # if it's a push to a branch and there is an open merge request: never run it
-      when: never
-    - if: '$CI_COMMIT_BRANCH'                             # if it's only a push to a branch
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'     # if it's only a push to main
-
-docker_ecr_repoCreate:
+########################
+### Merge Request
+########################
+git_version_gating:
   stage: init
   rules:
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+    - !reference [.skip_ci, rules]
+    - !reference [.merge_request, rules]
 
-git_actions_gating:
-  stage: init
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+# go_unitTest_runTests:
+#   stage: code-analysis
+#   rules:
+#     - !reference [.merge_request, rules]
 
-docker_ecr_buildImage:
+# go_unitTest_codeCoverage:
+#   stage: code-gating
+#   rules:
+#     - !reference [.merge_request, rules]
+
+# go_unitTest_gating:
+#   stage: code-gating
+#   variables:
+#     ACCEPTABLE_COVERAGE: 80
+#   rules:
+#     - !reference [.merge_request, rules]
+
+go_build_code:
   stage: build
   rules:
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+    - !reference [.merge_request, rules]
+
+########################
+### Post Merge
+########################
+go_build_zip_code:
+  stage: build
+  needs:
+    - go_build_code
+  rules:
+    - !reference [.post_merge, rules]
+
+aws_push_to_s3:
+  stage: artifact
+  variables:
+    BUCKET_NAME: lambda-source-code-mgmt-dev.nodestack.cloud
+  rules:
+    - !reference [.post_merge, rules]
+
+lambda_deploy_dev:
+  extends: .aws_lambda_deploy
+  stage: deploy
+  variables:
+    ENVIRONMENT: "dev"
+    S3_BUCKET: "lambda-source-code-mgmt-dev.nodestack.cloud"
+  rules:
+    - !reference [.post_merge, rules]
+
+# lambda_deploy_staging:
+#   extends: .aws_lambda_deploy
+#   stage: deploy
+#   variables:
+#     ENVIRONMENT: "staging"
+#   rules:
+#     - !reference [.post_merge, rules]
+
+# lambda_deploy_prod:
+#   extends: .aws_lambda_deploy
+#   stage: deploy
+#   variables:
+#     ENVIRONMENT: "prod"
+#   rules:
+#     - !reference [.post_merge, rules]
 
 git_actions_tag:
   stage: build
   rules:
-    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'  # only when merged to main
+    - !reference [.post_merge, rules]

@@ -1,9 +1,10 @@
 package configs_test
 
 import (
-	"mgmt/configs"
 	"os"
 	"testing"
+
+	"mgmt/internal/configs"
 
 	"github.com/stretchr/testify/assert"
 )
