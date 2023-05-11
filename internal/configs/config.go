@@ -2,7 +2,6 @@ package configs
 
 import (
 	"log"
-
 	"mgmt/internal/env"
 )
 
