@@ -63,6 +63,7 @@ go_build_code:
   stage: build
   rules:
     - !reference [.merge_request, rules]
+    - !reference [.post_merge, rules]
 
 ########################
 ### Post Merge
