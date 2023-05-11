@@ -1,7 +1,7 @@
 package configs_test
 
 import (
-	"mgmt/configs"
+	"mgmt/internal/configs"
 	"testing"
 )
 
@@ -28,6 +28,7 @@ func TestFetchVars(t *testing.T) {
 			t.Setenv(envKey, envTest.envValue)
 
 			// FetchVars will return a string
+
 			// envValue if defined or else defaultValue value will be defined
 			got := configs.FetchVars().TemplateDir
 			want := envTest.expectedValue

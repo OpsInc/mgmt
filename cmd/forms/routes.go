@@ -1,26 +1,24 @@
 package main
 
 import (
-	"context"
 	"log"
-	"mgmt/handlers"
 	"os"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
 )
 
-var err error
+var (
+	err       error
+	ginLambda *ginadapter.GinLambda
+)
 
-var ginLambda *ginadapter.GinLambda
+func (app *application) routes() {
+	if os.Getenv("GIN_MODE") != "debug" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-func LambdaHandler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	return ginLambda.ProxyWithContext(ctx, request)
-}
-
-func main() {
 	// Creates a router without any middleware by default
 	r := gin.New()
 
@@ -34,17 +32,19 @@ func main() {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 
+	// Disable proxie checks
 	err = r.SetTrustedProxies(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	mgmt := r.Group("/mgmt")
+	// Routes
+	forms := r.Group("/forms")
 	{
-		mgmt.POST("/orders", handlers.Testfunc2) // same as /mgmt/orders
-		mgmt.POST("/buy", handlers.Testfunc2)    // same as /mgmt/buy
+		forms.POST("/users", app.createUsers)
 	}
 
+	// Run localy or for Lambda
 	if os.Getenv("GO_ENV") == "local" {
 		err = r.Run(":8080")
 		if err != nil {
@@ -52,6 +52,6 @@ func main() {
 		}
 	} else {
 		ginLambda = ginadapter.New(r)
-		lambda.Start(LambdaHandler)
+		lambda.Start(lambdaHandler)
 	}
 }

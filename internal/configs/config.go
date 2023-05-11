@@ -1,8 +1,9 @@
 package configs
 
 import (
-	"mgmt/env"
 	"log"
+
+	"mgmt/internal/env"
 )
 
 type Config struct {

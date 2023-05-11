@@ -2,9 +2,10 @@ package env_test
 
 import (
 	"errors"
-	"mgmt/env"
 	"os"
 	"testing"
+
+	"mgmt/internal/env"
 
 	"github.com/stretchr/testify/assert"
 )

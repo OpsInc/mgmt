@@ -1,13 +1,13 @@
-package handlers_test
+package main
 
 import (
-	"mgmt/handlers"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
