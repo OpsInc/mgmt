@@ -33,6 +33,7 @@ func (app *application) createUsers(c *gin.Context) {
 	}
 
 	// Nice output like jq
+	//nolint:errchkjson
 	niceOutput, _ := json.MarshalIndent(jsonPost, "", "\t")
 	log.Printf("JSON provided\n %+v", string(niceOutput))
 

@@ -17,7 +17,7 @@ include:
     ref: main
     file:
       - 'global/rules.yml'
-      # - 'go/lint.yml'
+      - 'go/lint.yml'
       # - 'go/unitTest.yml'
       - 'go/build.yml'
       - 'git/actions.yml'
@@ -27,11 +27,11 @@ include:
 ########################
 ### Pre Merge
 ########################
-# go_lint_golangci:
-#   stage: code-analysis
-#   rules:
-#     - !reference [.skip_ci, rules]
-#     - !reference [.pre_merge, rules]
+go_lint_golangci:
+  stage: code-analysis
+  rules:
+    - !reference [.skip_ci, rules]
+    - !reference [.pre_merge, rules]
 
 ########################
 ### Merge Request

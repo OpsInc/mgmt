@@ -1,10 +1,10 @@
 package env
 
 import (
-    "fmt"
-    "log"
-    "os"
-    "strings"
+	"fmt"
+	"log"
+	"os"
+	"strings"
 )
 
 const (
@@ -21,7 +21,7 @@ var (
 // GetDefault fetches the env variable envKey with a defaultValue specified
 // If envKey is empty: err == errEmptyEnvKey
 // If the env variable value returns empty, it will use the defaultValue instead
-// If env variable returns empty and defaultValue is empty as well: err == errEmptyValuesDefault
+// If env variable returns empty and defaultValue is empty as well: err == errEmptyValuesDefault.
 func GetDefault(envKey string, defaultValue string) (string, error) {
 	var envValue string
 
@@ -52,7 +52,7 @@ func GetDefault(envKey string, defaultValue string) (string, error) {
 
 // Get fetches the env variable envKey
 // If envKey is empty: err == errEmptyEnvKey
-// If the env variable value returns empty: err == errEmptyValues
+// If the env variable value returns empty: err == errEmptyValues.
 func Get(envKey string) (string, error) {
 	var envValue string
 

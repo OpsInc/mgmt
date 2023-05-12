@@ -11,7 +11,7 @@ import (
 
 var (
 	err       error
-	ginLambda *ginadapter.GinLambda
+	ginLambda *ginadapter.GinLambda //nolint:gochecknoglobals
 )
 
 func (app *application) routes() {

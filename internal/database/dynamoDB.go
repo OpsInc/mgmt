@@ -37,7 +37,6 @@ func AWSConnection() *dynamodb.Client {
 
 func ListTables(db *dynamodb.Client) {
 	// input := &dynamodb.ListTablesInput{}   // Can be replaced by nil since we do not provide any config other than an empty struct
-
 	tables, err := db.ListTables(context.TODO(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -54,11 +53,11 @@ func ListTables(db *dynamodb.Client) {
 
 // - Takes Stuct data in order to convert it as map[string]types.AttributeValue items
 // - Writes the items in DynamoDB table
-// - The DynamoDB table is defined by env var "DATABASE_NAME"
+// - The DynamoDB table is defined by env var "DATABASE_NAME".
 func PutItems(db *dynamodb.Client, data any) {
-	database_name := os.Getenv("DATABASE_NAME")
+	databaseName := os.Getenv("DATABASE_NAME")
 
-	if database_name == "" {
+	if databaseName == "" {
 		log.Fatal("No database has been set as env variable: DATABASE_NAME")
 	}
 
@@ -79,12 +78,12 @@ func PutItems(db *dynamodb.Client, data any) {
 		log.Fatal("Empty dynamodb items provided with error:", err)
 	}
 
-	out, err := db.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(database_name),
+	out, err := db.PutItem(context.TODO(), &dynamodb.PutItemInput{ //nolint:exhaustruct
+		TableName: aws.String(databaseName),
 		Item:      items,
 	})
 	if err != nil {
-		log.Fatal("Database:", database_name, "has PutItems Error: ", err)
+		log.Fatal("Database:", databaseName, "has PutItems Error: ", err)
 	}
 
 	log.Println(out.Attributes)
