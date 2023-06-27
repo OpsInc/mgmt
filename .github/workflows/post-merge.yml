@@ -100,10 +100,10 @@ jobs:
         run: |
           git fetch --all --tags
 
-          GIT_COMMIT_ID=$(git log --oneline | grep -v Merge | head  -n1 | awk '{print $1}')
+          VERSION=$(cat VERSION)
 
           echo -e "${GREEN}Download from S3: ${YELLOW} ${BUCKET_NAME}${NC}"
-          aws s3 cp s3://${BUCKET_NAME}/${GIT_COMMIT_ID}/ ./bin/ --recursive
+          aws s3 cp s3://${BUCKET_NAME}/${VERSION}/ ./bin/ --recursive
 
       - name: Validate if artifact is empty
         id: validate-artifact

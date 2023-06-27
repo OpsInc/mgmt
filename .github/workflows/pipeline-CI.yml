@@ -155,8 +155,9 @@ jobs:
         run: |
           git fetch --all --tags
 
-          GIT_COMMIT_ID=$(git log --oneline | grep -v Merge | head  -n1 | awk '{print $1}')
+          VERSION=$(cat VERSION)
+
           for module in $(ls -A ./bin); do
             echo -e "${GREEN}PUSH TO S3: ${YELLOW}Files in module ./bin/${module} will be pushed to lambda ${BUCKET_NAME}${NC}"
-            aws s3 cp ./bin/${module} s3://${BUCKET_NAME}/${GIT_COMMIT_ID}/${module} --recursive
+            aws s3 cp ./bin/${module} s3://${BUCKET_NAME}/${VERSION}/${module} --recursive
           done
