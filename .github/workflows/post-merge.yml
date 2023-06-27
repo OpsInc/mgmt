@@ -121,7 +121,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: go-code-artifact-s3
-          path: zip/
+          path: bin/
           retention-days: 1
 
   zip-code:
