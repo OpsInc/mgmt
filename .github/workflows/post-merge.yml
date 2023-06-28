@@ -23,6 +23,8 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  ENVIRONMENT: "dev"
+  PROJECT: "mgmt"
 
 jobs:
   git-tag-release:
@@ -189,3 +191,14 @@ jobs:
             echo -e "${GREEN}PUSH TO S3: ${YELLOW}Files in module ./zip/${module} will be pushed to lambda ${BUCKET_NAME}${NC}"
             aws s3 cp ./zip/${module} s3://${BUCKET_NAME}/${module} --recursive
           done
+
+      - name: Deploy code to Lambda
+        run: |
+          if [ -d ./zip ] && [ "$(ls -A ./zip)" ]; then
+            for module in $(ls -A ./zip); do
+              package=$(ls ./zip/${module}/)
+
+              echo -e "${GREEN}Deploy Lambda ${module}-${PROJECT}-${ENVIRONMENT}${NC}: ${YELLOW}Package: ${package}${NC}"
+              aws lambda update-function-code --function-name ${module}-${PROJECT}-${ENVIRONMENT}  --s3-bucket ${BUCKET_NAME} --s3-key ${module}/${package}
+            done
+          fi
