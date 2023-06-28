@@ -30,7 +30,7 @@ jobs:
   git-tag-release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    name: Post-merge Git actions
+    name: Git tag and release
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -85,6 +85,7 @@ jobs:
           body: ${{ steps.git_info.outputs.git_body }}
 
   download-artifact-s3:
+    name: Download artifact from S3
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: git-tag-release
@@ -95,12 +96,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Download Artifact from S3
         run: |
-          git fetch --all --tags
 
           VERSION=$(cat VERSION)
 
@@ -127,6 +125,7 @@ jobs:
           retention-days: 1
 
   zip-code:
+    name: Zip code
     if: github.event.pull_request.merged == true && needs.download-artifact-s3.outputs.artifact-empty == 'false'
     runs-on: ubuntu-latest
     needs: download-artifact-s3
@@ -135,8 +134,6 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Download Artifact
         uses: actions/download-artifact@v3
@@ -168,9 +165,36 @@ jobs:
           retention-days: 1
 
   aws-push-code-to-s3:
+    name: Push code to S3
     if: github.event.pull_request.merged
     runs-on: ubuntu-latest
     needs: zip-code
+    env:
+      BUCKET_NAME: "lambda-source-code-mgmt-dev.nodestack.cloud"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: go-zip-artifact
+          path: zip/
+
+      - name: Push to S3
+        run: |
+          VERSION=$(cat VERSION)
+
+          for module in $(ls -A ./zip); do
+            echo -e "${GREEN}PUSH TO S3: ${YELLOW}Files in module ./zip/${module} will be pushed to lambda ${BUCKET_NAME}${NC}"
+            aws s3 cp ./zip/${module} s3://${BUCKET_NAME}/${module} --recursive
+          done
+
+  aws-push-code-to-lambda:
+    name: Push code to Lambda
+    if: github.event.pull_request.merged
+    runs-on: ubuntu-latest
+    needs: aws-push-code-to-s3
     env:
       BUCKET_NAME: "lambda-source-code-mgmt-dev.nodestack.cloud"
     steps:
