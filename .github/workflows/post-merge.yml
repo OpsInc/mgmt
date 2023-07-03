@@ -12,7 +12,6 @@ jobs:
   git-post-merge:
     if: github.event.pull_request.merged == true
     uses: OpsInc/workflow-lib/.github/workflows/git-tag-release.yml@main
-    secrets: inherit
 
   go-CD:
     if: github.event.pull_request.merged == true
