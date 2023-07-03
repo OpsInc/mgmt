@@ -12,7 +12,6 @@ on:
 jobs:
   git-version-gating:
     uses: OpsInc/workflow-lib/.github/workflows/git-version-gating.yml@main
-    secrets: inherit
 
   go-CI:
     uses: OpsInc/workflow-lib/.github/workflows/go-CI.yml@main
