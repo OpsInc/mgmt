@@ -2,10 +2,11 @@ package main
 
 import (
 	"log"
-	"mgmt/internal/database"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+
+	"mgmt/internal/database"
 )
 
 type Response struct {

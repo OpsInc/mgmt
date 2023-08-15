@@ -1,3 +1,4 @@
+// users defines the functions for user actions
 package main
 
 import (

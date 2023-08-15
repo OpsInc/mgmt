@@ -51,7 +51,7 @@ func ListTables(db *dynamodb.Client) {
 
 // func PutItems(db *dynamodb.Client, items map[string]types.AttributeValue) {
 
-// - Takes Stuct data in order to convert it as map[string]types.AttributeValue items
+// - Takes a struct data in order to convert it as map[string]types.AttributeValue items
 // - Writes the items in DynamoDB table
 // - The DynamoDB table is defined by env var "DATABASE_NAME".
 func PutItems(db *dynamodb.Client, data any) {

@@ -6,6 +6,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
+// lambdaHandler compatible with Gin
+//
 //nolint:wrapcheck
 func lambdaHandler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	return ginLambda.ProxyWithContext(ctx, request)

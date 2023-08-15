@@ -1,3 +1,4 @@
+// routes defines the Gin engine Initialization
 package main
 
 import (
@@ -14,6 +15,9 @@ var (
 	ginLambda *ginadapter.GinLambda //nolint:gochecknoglobals
 )
 
+// routes will start the Gin engine with its initial configs.
+// It will start the configured HTTP routes.
+// It will verify the env GO_ENV to determin if it will be Initialized as a Lambda or a local process.
 func (app *application) routes() {
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
